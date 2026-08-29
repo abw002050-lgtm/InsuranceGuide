@@ -1,0 +1,9 @@
+OK   settings.gradle.kts
+OK   build.gradle.kts
+OK   app/build.gradle.kts
+OK   app/src/main/AndroidManifest.xml
+OK   app/src/main/assets/databases/Domw.zip
+OK   gradle/wrapper/gradle-wrapper.properties
+Kotlin files: 14
+MISS gradle/wrapper/gradle-wrapper.jar (required for standard ./gradlew execution)
+Android SDK environment variable not detected in current shell

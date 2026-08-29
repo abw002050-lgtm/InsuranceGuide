@@ -1,0 +1,9 @@
+EMP: 304914 rows, 10 columns
+Pension: 112528 rows, 22 columns
+BANKS: 17 rows, 7 columns
+BRANCHES: 23 rows, 12 columns
+GOVS: 22 rows, 10 columns
+POST: 233 rows, 9 columns
+PHONE: 20 rows, 4 columns
+LAWS: 12 rows, 4 columns
+LAWP: 24 rows, 3 columns

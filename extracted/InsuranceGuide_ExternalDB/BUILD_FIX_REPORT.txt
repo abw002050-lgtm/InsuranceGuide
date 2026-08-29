@@ -1,0 +1,6 @@
+BUILD FIX V9
+- Fixed LawRepository: removed illegal call to private InsuranceDatabase constructor.
+- LawRepository now obtains SQLiteDatabase through InsuranceDatabase.get(context).
+- Added build_apk.sh fallback build entrypoint.
+- Existing Gradle wrapper properties preserved.
+- Actual APK build was not executed in this environment because Gradle, Android SDK, and DNS access to download Gradle are unavailable.

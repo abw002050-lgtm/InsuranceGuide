@@ -1,0 +1,16 @@
+InsuranceGuide_Rebuild V8 - Build preparation report
+
+Environment result:
+- Gradle executable: not installed
+- Android SDK: not available
+- Network access to Gradle distribution: unavailable (DNS resolution failed)
+- Therefore an actual assembleDebug execution and APK generation could not be performed in this environment.
+
+Source fixes made:
+- Fixed EmployeeRepository to use InsuranceDatabase.get(context), matching the private constructor of InsuranceDatabase.
+- Fixed PensionRepository to use InsuranceDatabase.get(context), matching the private constructor of InsuranceDatabase.
+- Added gradle.properties.
+- Added gradle-wrapper.properties configured for Gradle 8.7.
+
+Important:
+The wrapper JAR could not be generated because neither Gradle nor a cached wrapper JAR is available locally and the environment cannot download Gradle. The project is prepared for a standard Android/Gradle environment, but this report does not claim that an APK was built successfully.

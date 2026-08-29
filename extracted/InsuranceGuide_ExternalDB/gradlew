@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+APP_HOME=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+WRAPPER_JAR="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+if [ -f "$WRAPPER_JAR" ]; then
+  exec java -classpath "$WRAPPER_JAR" org.gradle.wrapper.GradleWrapperMain "$@"
+fi
+GRADLE_VERSION=8.7
+DIST_DIR="${GRADLE_USER_HOME:-$HOME/.gradle}/wrapper/dists/manual-gradle-${GRADLE_VERSION}"
+GRADLE_HOME="$DIST_DIR/gradle-${GRADLE_VERSION}"
+if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+  mkdir -p "$DIST_DIR"
+  ZIP="$DIST_DIR/gradle-${GRADLE_VERSION}-bin.zip"
+  URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+  echo "Standard gradle-wrapper.jar is not bundled. Bootstrapping Gradle ${GRADLE_VERSION}..."
+  if [ ! -f "$ZIP" ]; then
+    if command -v curl >/dev/null 2>&1; then curl --fail --location --retry 3 --connect-timeout 20 "$URL" -o "$ZIP"
+    elif command -v wget >/dev/null 2>&1; then wget --tries=3 -O "$ZIP" "$URL"
+    else echo "curl or wget is required to bootstrap Gradle" >&2; exit 1
+    fi
+  fi
+  rm -rf "$GRADLE_HOME"
+  if command -v unzip >/dev/null 2>&1; then unzip -q "$ZIP" -d "$DIST_DIR"
+  else echo "unzip is required to bootstrap Gradle" >&2; exit 1
+  fi
+fi
+exec "$GRADLE_HOME/bin/gradle" -p "$APP_HOME" "$@"
