@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.insuranceguide.app.data.database.*
 import com.insuranceguide.app.presentation.calculators.CalculatorsScreen
+import com.insuranceguide.app.presentation.advanced.AdvancedSearchScreen
 import com.insuranceguide.app.presentation.database.DatabaseScreen
 import com.insuranceguide.app.presentation.directory.DirectoryScreen
 import com.insuranceguide.app.presentation.employees.EmployeesScreen
@@ -232,6 +233,24 @@ class MainActivity : ComponentActivity() {
                     when {
 
                         /*
+                         * البحث المتقدم
+                         */
+                        screen == "advancedSearch" -> {
+                            val repo = remember(
+                                databaseVersion
+                            ) {
+                                EmployeeRepository(
+                                    this@MainActivity
+                                )
+                            }
+
+                            AdvancedSearchScreen(
+                                repository = repo,
+                                onBack = { screen = "home" }
+                            )
+                        }
+
+                        /*
                          * الموظفون
                          */
                         screen == "employees" -> {
@@ -366,6 +385,10 @@ class MainActivity : ComponentActivity() {
                                     screen = "pension"
                                 },
 
+                                onAdvancedSearch = {
+                                    screen = "advancedSearch"
+                                },
+
                                 onDirectory = {
                                         section,
                                         title ->
@@ -413,6 +436,7 @@ class MainActivity : ComponentActivity() {
 fun HomeScreen(
     onEmployees: () -> Unit,
     onPension: () -> Unit,
+    onAdvancedSearch: () -> Unit,
     onDirectory: (String, String) -> Unit,
     onLaws: () -> Unit,
     onProcedures: () -> Unit,
@@ -458,6 +482,20 @@ fun HomeScreen(
                 Modifier.height(10.dp)
             )
         }
+
+        /*
+         * البحث المتقدم - مدخل واحد مستقل
+         */
+        OutlinedButton(
+            onClick = onAdvancedSearch,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("🔎 البحث المتقدم")
+        }
+
+        Spacer(
+            Modifier.height(10.dp)
+        )
 
 
         /*
