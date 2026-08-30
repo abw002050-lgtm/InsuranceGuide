@@ -58,7 +58,7 @@ fun EmployeesScreen(repository: EmployeeRepository, onBack: () -> Unit) {
         }
     }
 }
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EmployeeDetails(e: Employee, onBack: () -> Unit) {
     Scaffold(topBar = { TopAppBar(title = { Text("تفاصيل الموظف") }, navigationIcon = { TextButton(onClick = onBack) { Text("رجوع") } }) }) { padding ->
