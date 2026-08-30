@@ -600,14 +600,23 @@ fun HomeScreen(
  * ============================================================
  * شاشة حول التطبيق
  * ============================================================
- */
-@Composable
+ */@Composable
 fun AboutScreen(
     onBack: () -> Unit
 ) {
-
     BackHandler {
         onBack()
+    }
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val versionName = remember {
+        runCatching {
+            context.packageManager
+                .getPackageInfo(context.packageName, 0)
+                .versionName
+                ?: "غير محدد"
+        }.getOrDefault("غير محدد")
     }
 
     Column(
@@ -615,8 +624,7 @@ fun AboutScreen(
             .fillMaxSize()
             .padding(24.dp),
 
-        horizontalAlignment =
-            Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Spacer(
@@ -654,7 +662,8 @@ fun AboutScreen(
                  */
                 Text(
                     "الدليل التأميني",
-                    style = MaterialTheme.typography.headlineSmall
+                    style =
+                        MaterialTheme.typography.headlineSmall
                 )
 
                 Spacer(
@@ -662,12 +671,13 @@ fun AboutScreen(
                 )
 
                 /*
-                 * الوصف
+                 * وصف التطبيق
                  */
                 Text(
-                    "دليل تأميني شامل للبحث والوصول إلى المعلومات "
-                            + "والبيانات والخدمات التأمينية.",
-                    style = MaterialTheme.typography.bodyLarge
+                    "دليل تأميني شامل للبحث والوصول إلى المعلومات " +
+                            "والبيانات والخدمات التأمينية.",
+                    style =
+                        MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(
@@ -681,12 +691,13 @@ fun AboutScreen(
                 )
 
                 /*
-                 * معلومات التطوير
+                 * حقوق التطوير
                  */
                 Text(
-                    "تم تطوير التطبيق وتحديثه ليتوافق مع "
-                            + "متطلبات التشغيل الحديثة من قبل",
-                    style = MaterialTheme.typography.bodyLarge
+                    "تم تطوير التطبيق وتحديثه ليتوافق مع " +
+                            "متطلبات التشغيل الحديثة من قبل",
+                    style =
+                        MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(
@@ -695,7 +706,8 @@ fun AboutScreen(
 
                 Text(
                     "أبو عبدالرحمن عاصم محمد",
-                    style = MaterialTheme.typography.titleMedium
+                    style =
+                        MaterialTheme.typography.titleMedium
                 )
 
                 Spacer(
@@ -707,7 +719,8 @@ fun AboutScreen(
                  */
                 Text(
                     "سنة التطوير والتحديث: 2026",
-                    style = MaterialTheme.typography.bodyMedium
+                    style =
+                        MaterialTheme.typography.bodyMedium
                 )
 
                 Spacer(
@@ -715,29 +728,12 @@ fun AboutScreen(
                 )
 
                 /*
-                 * رقم الإصدار
+                 * رقم إصدار التطبيق
                  */
-                val versionName =
-                    try {
-                        val packageInfo =
-                            androidx.compose.ui.platform.LocalContext
-                                .current
-                                .packageManager
-                                .getPackageInfo(
-                                    androidx.compose.ui.platform.LocalContext
-                                        .current.packageName,
-                                    0
-                                )
-
-                        packageInfo.versionName ?: "غير محدد"
-
-                    } catch (e: Exception) {
-                        "غير محدد"
-                    }
-
                 Text(
                     "إصدار التطبيق: $versionName",
-                    style = MaterialTheme.typography.bodyMedium
+                    style =
+                        MaterialTheme.typography.bodyMedium
                 )
 
                 Spacer(
@@ -755,7 +751,8 @@ fun AboutScreen(
                  */
                 Text(
                     "© 2026 أبو عبدالرحمن عاصم محمد",
-                    style = MaterialTheme.typography.titleSmall
+                    style =
+                        MaterialTheme.typography.titleSmall
                 )
 
                 Spacer(
@@ -764,17 +761,22 @@ fun AboutScreen(
 
                 Text(
                     "جميع الحقوق محفوظة.",
-                    style = MaterialTheme.typography.bodyMedium
+                    style =
+                        MaterialTheme.typography.bodyMedium
                 )
 
                 Spacer(
                     Modifier.height(16.dp)
                 )
 
+                /*
+                 * الخصوصية والتشغيل المحلي
+                 */
                 Text(
-                    "البيانات محلية ولا يعتمد التطبيق "
-                            + "على GPS أو الخرائط.",
-                    style = MaterialTheme.typography.bodySmall
+                    "البيانات محلية ولا يعتمد التطبيق " +
+                            "على GPS أو الخرائط.",
+                    style =
+                        MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -790,8 +792,9 @@ fun AboutScreen(
             onClick = onBack,
             modifier = Modifier.fillMaxWidth()
         ) {
-
             Text("العودة")
         }
     }
 }
+
+                
