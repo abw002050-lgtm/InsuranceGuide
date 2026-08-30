@@ -1,5 +1,5 @@
 package com.insuranceguide.app
-
+import com.insuranceguide.app.presentation.advanced.AdvancedSearchScreen
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
