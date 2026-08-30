@@ -25,72 +25,376 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { InsuranceGuideApp() }
+
+        setContent {
+            InsuranceGuideApp()
+        }
     }
 
     @Composable
     private fun InsuranceGuideApp() {
-        val manager = remember { DatabaseManager(this@MainActivity) }
-        val scope = rememberCoroutineScope()
-        var databaseInfo by remember { mutableStateOf(manager.currentInfo()) }
-        var databaseError by remember { mutableStateOf<String?>(null) }
-        var databaseVersion by remember { mutableIntStateOf(0) }
-        var screen by rememberSaveable { mutableStateOf("home") }
-        var directoryTitle by rememberSaveable { mutableStateOf("") }
 
-        val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        val manager = remember {
+            DatabaseManager(this@MainActivity)
+        }
+
+        val scope = rememberCoroutineScope()
+
+        var databaseInfo by remember {
+            mutableStateOf(manager.currentInfo())
+        }
+
+        var databaseError by remember {
+            mutableStateOf<String?>(null)
+        }
+
+        var databaseVersion by remember {
+            mutableIntStateOf(0)
+        }
+
+        var screen by rememberSaveable {
+            mutableStateOf("home")
+        }
+
+        var directoryTitle by rememberSaveable {
+            mutableStateOf("")
+        }
+
+        /*
+         * اختيار واستيراد قاعدة البيانات
+         */
+        val picker = rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) { uri: Uri? ->
+
             if (uri == null) return@rememberLauncherForActivityResult
+
             scope.launch(Dispatchers.IO) {
+
                 val result = runCatching {
-                    contentResolver.takePersistableUriPermission(uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+
                     manager.import(uri)
                 }
+
                 kotlinx.coroutines.withContext(Dispatchers.Main) {
-                    result.onSuccess { info ->
-                        InsuranceDatabase.reset(this@MainActivity)
-                        databaseInfo = info
-                        databaseError = null
-                        databaseVersion++
-                        screen = "home"
-                    }.onFailure { e -> databaseError = e.message ?: "تعذر استيراد قاعدة البيانات" }
+
+                    result
+                        .onSuccess { info ->
+
+                            InsuranceDatabase.reset(
+                                this@MainActivity
+                            )
+
+                            databaseInfo = info
+                            databaseError = null
+                            databaseVersion++
+
+                            screen = "home"
+                        }
+                        .onFailure { e ->
+
+                            databaseError =
+                                e.message
+                                    ?: "تعذر استيراد قاعدة البيانات"
+                        }
                 }
             }
         }
 
         MaterialTheme {
-            Surface(Modifier.fillMaxSize()) {
+
+            Surface(
+                modifier = Modifier.fillMaxSize()
+            ) {
+
+                /*
+                 * شاشة إدارة قاعدة البيانات
+                 */
                 if (screen == "database") {
-                    BackHandler { screen = "home" }
-                    DatabaseScreen(databaseInfo, onPick = { picker.launch(arrayOf("*/*")) }, onClear = {
-                        scope.launch(Dispatchers.IO) { manager.clear(); InsuranceDatabase.reset(this@MainActivity); kotlinx.coroutines.withContext(Dispatchers.Main) { databaseInfo = null; databaseVersion++; screen = "database" } }
-                    }, onBack = { screen = "home" }, message = databaseError)
-                } else if (databaseInfo == null || !databaseInfo!!.isValid || !databaseInfo!!.isCompatible) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-                            Text("الدليل التأميني", style = MaterialTheme.typography.headlineMedium)
-                            Spacer(Modifier.height(12.dp))
-                            Text(databaseError ?: "لم يتم تحديد قاعدة بيانات متوافقة.")
-                            Spacer(Modifier.height(16.dp))
-                            Button(onClick = { screen = "database" }) { Text("📂 اختيار قاعدة البيانات") }
+
+                    BackHandler {
+                        screen = "home"
+                    }
+
+                    DatabaseScreen(
+                        databaseInfo,
+
+                        onPick = {
+                            picker.launch(
+                                arrayOf("*/*")
+                            )
+                        },
+
+                        onClear = {
+
+                            scope.launch(Dispatchers.IO) {
+
+                                manager.clear()
+
+                                InsuranceDatabase.reset(
+                                    this@MainActivity
+                                )
+
+                                kotlinx.coroutines.withContext(
+                                    Dispatchers.Main
+                                ) {
+
+                                    databaseInfo = null
+                                    databaseVersion++
+                                    screen = "database"
+                                }
+                            }
+                        },
+
+                        onBack = {
+                            screen = "home"
+                        },
+
+                        message = databaseError
+                    )
+
+                }
+
+                /*
+                 * لا توجد قاعدة بيانات متوافقة
+                 */
+                else if (
+                    databaseInfo == null ||
+                    !databaseInfo!!.isValid ||
+                    !databaseInfo!!.isCompatible
+                ) {
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Column(
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally,
+
+                            modifier = Modifier.padding(24.dp)
+                        ) {
+
+                            Text(
+                                "الدليل التأميني",
+                                style =
+                                    MaterialTheme.typography.headlineMedium
+                            )
+
+                            Spacer(
+                                Modifier.height(12.dp)
+                            )
+
+                            Text(
+                                databaseError
+                                    ?: "لم يتم تحديد قاعدة بيانات متوافقة."
+                            )
+
+                            Spacer(
+                                Modifier.height(16.dp)
+                            )
+
+                            Button(
+                                onClick = {
+                                    screen = "database"
+                                }
+                            ) {
+
+                                Text(
+                                    "📂 اختيار قاعدة البيانات"
+                                )
+                            }
                         }
                     }
-                } else {
-                    if (screen != "home") BackHandler { screen = "home" }
+                }
+
+                /*
+                 * التطبيق الرئيسي
+                 */
+                else {
+
+                    if (screen != "home") {
+
+                        BackHandler {
+                            screen = "home"
+                        }
+                    }
+
                     when {
-                        screen == "employees" -> { val repo = remember(databaseVersion) { EmployeeRepository(this@MainActivity) }; EmployeesScreen(repo) { screen = "home" } }
-                        screen == "pension" -> { val repo = remember(databaseVersion) { PensionRepository(this@MainActivity) }; PensionScreen(repo) { screen = "home" } }
-                        screen == "laws" -> { val repo = remember(databaseVersion) { LawRepository(this@MainActivity) }; LawsScreen(repo, false) { screen = "home" } }
-                        screen == "procedures" -> { val repo = remember(databaseVersion) { LawRepository(this@MainActivity) }; LawsScreen(repo, true) { screen = "home" } }
-                        screen == "calculators" -> CalculatorsScreen { screen = "home" }
-                        screen.startsWith("dir:") -> { val repo = remember(databaseVersion) { DirectoryRepository(this@MainActivity) }; DirectoryScreen(screen.removePrefix("dir:"), directoryTitle, repo) { screen = "home" } }
-                        else -> HomeScreen(
-                            onEmployees = { screen = "employees" }, onPension = { screen = "pension" },
-                            onDirectory = { section, title -> directoryTitle = title; screen = "dir:$section" },
-                            onLaws = { screen = "laws" }, onProcedures = { screen = "procedures" },
-                            onCalculators = { screen = "calculators" }, onDatabase = { screen = "database" }
-                        )
+
+                        /*
+                         * الموظفون
+                         */
+                        screen == "employees" -> {
+
+                            val repo = remember(
+                                databaseVersion
+                            ) {
+                                EmployeeRepository(
+                                    this@MainActivity
+                                )
+                            }
+
+                            EmployeesScreen(repo) {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * المتقاعدون والمعاشات
+                         */
+                        screen == "pension" -> {
+
+                            val repo = remember(
+                                databaseVersion
+                            ) {
+                                PensionRepository(
+                                    this@MainActivity
+                                )
+                            }
+
+                            PensionScreen(repo) {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * القوانين
+                         */
+                        screen == "laws" -> {
+
+                            val repo = remember(
+                                databaseVersion
+                            ) {
+                                LawRepository(
+                                    this@MainActivity
+                                )
+                            }
+
+                            LawsScreen(
+                                repo,
+                                false
+                            ) {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * الإجراءات والمعاملات
+                         */
+                        screen == "procedures" -> {
+
+                            val repo = remember(
+                                databaseVersion
+                            ) {
+                                LawRepository(
+                                    this@MainActivity
+                                )
+                            }
+
+                            LawsScreen(
+                                repo,
+                                true
+                            ) {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * الحاسبات
+                         */
+                        screen == "calculators" -> {
+
+                            CalculatorsScreen {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * الأدلة
+                         */
+                        screen.startsWith("dir:") -> {
+
+                            val repo = remember(
+                                databaseVersion
+                            ) {
+                                DirectoryRepository(
+                                    this@MainActivity
+                                )
+                            }
+
+                            DirectoryScreen(
+                                screen.removePrefix("dir:"),
+                                directoryTitle,
+                                repo
+                            ) {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * حول التطبيق
+                         */
+                        screen == "about" -> {
+
+                            AboutScreen {
+                                screen = "home"
+                            }
+                        }
+
+                        /*
+                         * الشاشة الرئيسية
+                         */
+                        else -> {
+
+                            HomeScreen(
+
+                                onEmployees = {
+                                    screen = "employees"
+                                },
+
+                                onPension = {
+                                    screen = "pension"
+                                },
+
+                                onDirectory = {
+                                        section,
+                                        title ->
+
+                                    directoryTitle = title
+                                    screen = "dir:$section"
+                                },
+
+                                onLaws = {
+                                    screen = "laws"
+                                },
+
+                                onProcedures = {
+                                    screen = "procedures"
+                                },
+
+                                onCalculators = {
+                                    screen = "calculators"
+                                },
+
+                                onDatabase = {
+                                    screen = "database"
+                                },
+
+                                onAbout = {
+                                    screen = "about"
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -98,21 +402,319 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+/*
+ * ============================================================
+ * الشاشة الرئيسية
+ * ============================================================
+ */
+
 @Composable
-fun HomeScreen(onEmployees: () -> Unit, onPension: () -> Unit, onDirectory: (String, String) -> Unit, onLaws: () -> Unit, onProcedures: () -> Unit, onCalculators: () -> Unit, onDatabase: () -> Unit) {
-    Column(Modifier.fillMaxSize().padding(24.dp)) {
-        Text("الدليل التأميني", style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(18.dp))
-        listOf("بحث الموظفين" to onEmployees, "بحث المتقاعدين والمعاشات" to onPension).forEach { (title, action) ->
-            ElevatedButton(onClick = action, modifier = Modifier.fillMaxWidth()) { Text(title) }; Spacer(Modifier.height(10.dp))
+fun HomeScreen(
+    onEmployees: () -> Unit,
+    onPension: () -> Unit,
+    onDirectory: (String, String) -> Unit,
+    onLaws: () -> Unit,
+    onProcedures: () -> Unit,
+    onCalculators: () -> Unit,
+    onDatabase: () -> Unit,
+    onAbout: () -> Unit
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+    ) {
+
+        Text(
+            "الدليل التأميني",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(
+            Modifier.height(18.dp)
+        )
+
+
+        /*
+         * بحث الموظفين والمتقاعدين
+         */
+
+        listOf(
+            "بحث الموظفين" to onEmployees,
+            "بحث المتقاعدين والمعاشات" to onPension
+        ).forEach { (title, action) ->
+
+            ElevatedButton(
+                onClick = action,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text(title)
+            }
+
+            Spacer(
+                Modifier.height(10.dp)
+            )
         }
-        listOf("BANKS" to "البنوك", "BRANCHES" to "الفروع", "GOVS" to "المحافظات", "POST" to "مكاتب البريد", "PHONE" to "دليل الهاتف").forEach { (section, title) ->
-            ElevatedButton(onClick = { onDirectory(section, title) }, modifier = Modifier.fillMaxWidth()) { Text(title) }; Spacer(Modifier.height(8.dp))
+
+
+        /*
+         * الأدلة
+         */
+
+        listOf(
+            "BANKS" to "البنوك",
+            "BRANCHES" to "الفروع",
+            "GOVS" to "المحافظات",
+            "POST" to "مكاتب البريد",
+            "PHONE" to "دليل الهاتف"
+        ).forEach { (section, title) ->
+
+            ElevatedButton(
+                onClick = {
+                    onDirectory(
+                        section,
+                        title
+                    )
+                },
+
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text(title)
+            }
+
+            Spacer(
+                Modifier.height(8.dp)
+            )
         }
-        ElevatedButton(onClick = onLaws, modifier = Modifier.fillMaxWidth()) { Text("القوانين") }
-        Spacer(Modifier.height(8.dp)); ElevatedButton(onClick = onProcedures, modifier = Modifier.fillMaxWidth()) { Text("الإجراءات والمعاملات") }
-        Spacer(Modifier.height(8.dp)); ElevatedButton(onClick = onCalculators, modifier = Modifier.fillMaxWidth()) { Text("الحاسبات") }
-        Spacer(Modifier.height(8.dp)); OutlinedButton(onClick = onDatabase, modifier = Modifier.fillMaxWidth()) { Text("⚙️ إدارة قاعدة البيانات") }
-        Text("البيانات محلية ولا يستخدم التطبيق GPS أو الخرائط.", Modifier.padding(top = 12.dp))
+
+
+        /*
+         * القوانين
+         */
+
+        ElevatedButton(
+            onClick = onLaws,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text("القوانين")
+        }
+
+        Spacer(
+            Modifier.height(8.dp)
+        )
+
+
+        /*
+         * الإجراءات والمعاملات
+         */
+
+        ElevatedButton(
+            onClick = onProcedures,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text("الإجراءات والمعاملات")
+        }
+
+        Spacer(
+            Modifier.height(8.dp)
+        )
+
+
+        /*
+         * الحاسبات
+         */
+
+        ElevatedButton(
+            onClick = onCalculators,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text("الحاسبات")
+        }
+
+        Spacer(
+            Modifier.height(8.dp)
+        )
+
+
+        /*
+         * إدارة قاعدة البيانات
+         */
+
+        OutlinedButton(
+            onClick = onDatabase,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text(
+                "⚙️ إدارة قاعدة البيانات"
+            )
+        }
+
+        Spacer(
+            Modifier.height(8.dp)
+        )
+
+
+        /*
+         * حول التطبيق
+         */
+
+        OutlinedButton(
+            onClick = onAbout,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text(
+                "ℹ️ حول التطبيق"
+            )
+        }
+
+
+        Spacer(
+            Modifier.height(12.dp)
+        )
+
+
+        /*
+         * معلومات التشغيل
+         */
+
+        Text(
+            "البيانات محلية ولا يستخدم التطبيق GPS أو الخرائط.",
+            modifier = Modifier.padding(
+                top = 4.dp
+            )
+        )
+    }
+}
+
+
+/*
+ * ============================================================
+ * شاشة حول التطبيق
+ * ============================================================
+ */
+
+@Composable
+fun AboutScreen(
+    onBack: () -> Unit
+) {
+
+    BackHandler {
+        onBack()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+
+        horizontalAlignment =
+            Alignment.CenterHorizontally
+    ) {
+
+        Spacer(
+            Modifier.height(40.dp)
+        )
+
+
+        /*
+         * العنوان
+         */
+
+        Text(
+            "حول التطبيق",
+            style =
+                MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(
+            Modifier.height(30.dp)
+        )
+
+
+        /*
+         * بطاقة معلومات التطبيق
+         */
+
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Column(
+                modifier = Modifier.padding(24.dp),
+
+                horizontalAlignment =
+                    Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    "الدليل التأميني",
+                    style =
+                        MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(
+                    Modifier.height(20.dp)
+                )
+
+                Text(
+                    "تم تطوير التطبيق وتحديثه ليتوافق مع متطلبات التشغيل الحديثة من قبل",
+                    style =
+                        MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(
+                    Modifier.height(14.dp)
+                )
+
+                Text(
+                    "أبو عبدالرحمن عاصم محمد",
+                    style =
+                        MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(
+                    Modifier.height(20.dp)
+                )
+
+                HorizontalDivider()
+
+                Spacer(
+                    Modifier.height(20.dp)
+                )
+
+                Text(
+                    "جميع الحقوق محفوظة.",
+                    style =
+                        MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+
+        Spacer(
+            Modifier.height(30.dp)
+        )
+
+
+        /*
+         * زر العودة
+         */
+
+        Button(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text("العودة")
+        }
     }
 }
