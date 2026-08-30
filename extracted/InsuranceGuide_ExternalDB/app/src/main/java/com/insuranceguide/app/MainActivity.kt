@@ -601,7 +601,6 @@ fun HomeScreen(
  * شاشة حول التطبيق
  * ============================================================
  */
-
 @Composable
 fun AboutScreen(
     onBack: () -> Unit
@@ -621,29 +620,24 @@ fun AboutScreen(
     ) {
 
         Spacer(
-            Modifier.height(40.dp)
+            Modifier.height(32.dp)
         )
 
-
         /*
-         * العنوان
+         * عنوان الصفحة
          */
-
         Text(
             "حول التطبيق",
-            style =
-                MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(
-            Modifier.height(30.dp)
+            Modifier.height(24.dp)
         )
-
 
         /*
          * بطاقة معلومات التطبيق
          */
-
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -655,34 +649,29 @@ fun AboutScreen(
                     Alignment.CenterHorizontally
             ) {
 
+                /*
+                 * اسم التطبيق
+                 */
                 Text(
                     "الدليل التأميني",
-                    style =
-                        MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.headlineSmall
                 )
 
                 Spacer(
-                    Modifier.height(20.dp)
+                    Modifier.height(12.dp)
                 )
 
+                /*
+                 * الوصف
+                 */
                 Text(
-                    "تم تطوير التطبيق وتحديثه ليتوافق مع متطلبات التشغيل الحديثة من قبل",
-                    style =
-                        MaterialTheme.typography.bodyLarge
+                    "دليل تأميني شامل للبحث والوصول إلى المعلومات "
+                            + "والبيانات والخدمات التأمينية.",
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(
-                    Modifier.height(14.dp)
-                )
-
-                Text(
-                    "أبو عبدالرحمن عاصم محمد",
-                    style =
-                        MaterialTheme.typography.titleMedium
-                )
-
-                Spacer(
-                    Modifier.height(20.dp)
+                    Modifier.height(24.dp)
                 )
 
                 HorizontalDivider()
@@ -691,24 +680,112 @@ fun AboutScreen(
                     Modifier.height(20.dp)
                 )
 
+                /*
+                 * معلومات التطوير
+                 */
+                Text(
+                    "تم تطوير التطبيق وتحديثه ليتوافق مع "
+                            + "متطلبات التشغيل الحديثة من قبل",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(
+                    Modifier.height(12.dp)
+                )
+
+                Text(
+                    "أبو عبدالرحمن عاصم محمد",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(
+                    Modifier.height(20.dp)
+                )
+
+                /*
+                 * سنة التطوير
+                 */
+                Text(
+                    "سنة التطوير والتحديث: 2026",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(
+                    Modifier.height(10.dp)
+                )
+
+                /*
+                 * رقم الإصدار
+                 */
+                val versionName =
+                    try {
+                        val packageInfo =
+                            androidx.compose.ui.platform.LocalContext
+                                .current
+                                .packageManager
+                                .getPackageInfo(
+                                    androidx.compose.ui.platform.LocalContext
+                                        .current.packageName,
+                                    0
+                                )
+
+                        packageInfo.versionName ?: "غير محدد"
+
+                    } catch (e: Exception) {
+                        "غير محدد"
+                    }
+
+                Text(
+                    "إصدار التطبيق: $versionName",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(
+                    Modifier.height(24.dp)
+                )
+
+                HorizontalDivider()
+
+                Spacer(
+                    Modifier.height(20.dp)
+                )
+
+                /*
+                 * حقوق الملكية
+                 */
+                Text(
+                    "© 2026 أبو عبدالرحمن عاصم محمد",
+                    style = MaterialTheme.typography.titleSmall
+                )
+
+                Spacer(
+                    Modifier.height(8.dp)
+                )
+
                 Text(
                     "جميع الحقوق محفوظة.",
-                    style =
-                        MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(
+                    Modifier.height(16.dp)
+                )
+
+                Text(
+                    "البيانات محلية ولا يعتمد التطبيق "
+                            + "على GPS أو الخرائط.",
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
 
-
         Spacer(
-            Modifier.height(30.dp)
+            Modifier.height(24.dp)
         )
-
 
         /*
          * زر العودة
          */
-
         Button(
             onClick = onBack,
             modifier = Modifier.fillMaxWidth()
